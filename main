@@ -1,0 +1,16 @@
+#!/bin/bash
+SCRIPTLOG=~/$(date +"%Y-%m-%d")_log.txt
+exec &>> $SCRIPTLOG
+
+CONN=$( TIMEFORMAT="%R"; { time ~/conn; } 2>&1 )  
+
+FTP=$( TIMEFORMAT="%R"; { time ~/ftpscript ; } 2>&1 )  
+
+#DISCONN=$( TIMEFORMAT="%R"; { time ~/disconn; } 2>&1 )  
+
+#echo $CONN s >> $SCRIPTLOG | awk '{print "'$(date +"%T")' " $0}'
+#echo $CONN s >> $SCRIPTLOG 
+echo Connection Exec Time: $CONN s | ts '%H:%M:%S'
+echo FTP Exec Time: $FTP s | ts '%H:%M:%S'
+
+#echo $DISCONN s >> $SCRIPTLOG

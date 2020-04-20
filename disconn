@@ -1,0 +1,6 @@
+#!/bin/bash
+DEV="qmicli --device=/dev/cdc-wdm0"
+
+qmi-network /dev/cdc-wdm0 stop
+
+#$DEV --dms-set-operating-mode='offline'

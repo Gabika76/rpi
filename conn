@@ -1,0 +1,30 @@
+#!/bin/bash
+SCRIPTLOG=~/$(date +"%Y-%m-%d")_log.txt
+exec &>> $SCRIPTLOG
+
+DEV="sudo qmicli --device=/dev/cdc-wdm0 "
+TIME=$(date +"%T")
+
+DFORMAT=$($DEV--wda-get-data-format 2>&1)
+OPERMODE=$($DEV --dms-get-operating-mode 2>&1)
+
+echo "$DFORMAT" | ts '%H:%M:%S'
+if echo "$DFORMAT" | grep 802-3  >/dev/null; then
+  echo $TIME "Data format OK"
+else
+  echo $TIME "Data format set to 802-3 ..."
+  $($DEV --wda-set-data-format='802-3') 2>&1
+fi
+echo "$OPERMODE" | ts '%H:%M:%S'
+if echo "$OPERMODE" | grep online  >/dev/null; then
+  echo $TIME "Operation mode: online"
+else
+  echo $TIME "Set operation mode to online ..."
+  $($DEV --dms-set-operating-mode='online') 
+fi
+
+
+qmi-network /dev/cdc-wdm0 start 2>&1 | ts '%H:%M:%S'
+
+sudo udhcpc -q -f -n -i wwan0 2>&1 | ts '%H:%M:%S'
+

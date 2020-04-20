@@ -1,0 +1,33 @@
+#!/bin/bash
+SCRIPTLOG=~/$(date +"%Y-%m-%d")_log.txt
+exec &>> $SCRIPTLOG
+
+HOST='195.228.203.171'
+FILE='20Mb'
+FTPCACHEDIR=~/FTPDL
+FTPLOG=~/ftplogfile
+
+function timestamp()
+{
+	TIME=$(date +"%T")
+}
+
+ftp -v $HOST << EOF | ts '%H:%M:%S' > $FTPLOG
+binary 
+lcd ~/FTPDL
+cd web 
+get $FILE
+bye
+EOF
+
+cat $FTPLOG >> $SCRIPTLOG
+#cat $FTPLOG | awk '{print "'$(date +"%T")' " $0}'
+timestamp
+if fgrep "226-File successfully transferred" $FTPLOG >/dev/null; then  
+  echo "FTP OK." $FILE "transferred." | ts '%H:%M:%S'
+  rm $FTPCACHEDIR/$FILE
+else
+  echo "FTP FAILED." | ts '%H:%M:%S'
+fi
+  
+rm $FTPLOG
